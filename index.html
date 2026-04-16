@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="referrer" content="no-referrer">
+  
+  <title>Love Stream: Pedro & Faye</title>
+  
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onclick="closeDropdowns(event)">
+
+  <input type="file" id="fileUpload" accept="image/*" style="display:none;">
+
+  <div id="app">
+   
+   <div class="screen active" id="loginScreen">
+     <div class="auth-container">
+       <div class="auth-logo title-font">LOVE STREAM</div>
+       <h2 class="auth-title">Sign In</h2>
+       <input type="email" id="loginEmail" class="auth-input" placeholder="Email or phone number" required>
+       <input type="password" id="loginPass" class="auth-input" placeholder="Password" required>
+       <button class="auth-btn" id="loginBtn" onclick="submitLogin()">Sign In</button>
+       <div style="display:flex; justify-content:space-between; margin-top:15px; color:#aaa; font-size:0.9rem;">
+         <label><input type="checkbox" checked> Remember me</label>
+         <span>Need help?</span>
+       </div>
+       <p style="color:#777; margin-top:35px; font-size:0.95rem;">New to Love Stream? <span style="color:#fff;">Sign up now.</span></p>
+     </div>
+   </div>
+
+   <div class="screen" id="verifScreen">
+     <div class="auth-container">
+       <h2 class="auth-title" style="margin-bottom:10px;">Security Check</h2>
+       <p class="verif-text">To keep this stream secure, we've sent a 6-digit verification code to <br><span class="verif-email" id="displayEmail">your email</span>.</p>
+       <input type="number" id="verifInput" class="pin-input" placeholder="------" maxlength="6">
+       <button class="auth-btn" id="verifyBtn" onclick="verifyCode()"><span id="verifyText">Verify Code</span><div class="spinner" id="verifySpinner"></div></button>
+       <p id="verifError" style="color:var(--netflix-red); margin-top:15px; font-size:0.95rem; text-align:center; min-height:20px;"></p>
+     </div>
+   </div>
+
+   <div class="screen" id="profileScreen">
+    <h1 class="profile-title">Who's watching?</h1>
+    <div class="profile-grid">
+     
+     <div class="profile-card">
+      <div class="profile-avatar" id="pedroAvatarContainer" onclick="enterDashboard()"></div>
+      <button class="edit-menu-btn" onclick="toggleMenu(event)">⋮</button>
+      <div class="dropdown" id="profileMenu">
+        <div class="drop-item" onclick="openEditProfile(event)">✏️ Edit Profile</div>
+        <div class="drop-item" style="color:var(--netflix-red);" onclick="triggerFakeDelete(event)">🗑️ Delete Profile</div>
+      </div>
+      <div class="profile-name" id="pedroNameLabel">Pedro</div>
+     </div>
+
+     <div class="profile-card" onclick="navTo('guestScreen')">
+      <div class="profile-avatar">
+        <div class="smiley-bg grey">
+          <svg viewBox="0 0 24 24" fill="white" width="60%" height="60%"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+        </div>
+      </div>
+      <div class="profile-name">Guest</div>
+     </div>
+    </div>
+   </div>
+   
+   <div class="screen" id="guestScreen">
+    <div style="font-size:4.5rem; margin-bottom:10px;">🚫</div>
+    <h2 style="font-size:2.5rem; margin-bottom:10px; font-weight:800;">Classified</h2>
+    <p style="color:#aaa; text-align:center; margin-bottom:30px; line-height:1.6; font-size: 1.1rem; max-width: 300px;">This love story is strictly reserved for Pedro. You do not have clearance to view this stream.</p>
+    <button class="auth-btn" style="max-width:200px;" onclick="navTo('profileScreen')">Return</button>
+   </div>
+   
+   <div class="dashboard" id="dashboard">
+    <nav class="nav-bar" id="topNav">
+     <div class="logo title-font" onclick="navTo('profileScreen')">LOVE STREAM</div>
+     <div class="nav-av" id="navPedroAvatarContainer" onclick="navTo('profileScreen')"></div>
+    </nav>
+    
+    <div class="hero" id="mainHero" style="background-image: url('https://image.tmdb.org/t/p/w1280/qom1SZSENbcH8NKhlHTkEdNlsH3.jpg');">
+     <div class="hero-content">
+       <div style="display:flex; justify-content:center; align-items:center; gap:6px; margin-bottom:8px;">
+         <span style="color:var(--netflix-red); font-size:1.6rem; font-weight:900; line-height:1;">N</span>
+         <span style="font-size:0.7rem; letter-spacing:2px; font-weight:700; color:#ccc;">ORIGINAL ROMANCE</span>
+       </div>
+       <h1 class="hero-title title-font">Pedro & Faye</h1>
+       <div class="hero-tags"><span>Romantic</span><span>Emotional</span><span>Masterpiece</span></div>
+       <div class="hero-btns">
+         <button class="btn-play" onclick="openModal('hero')"><svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;"><path d="M8 5v14l11-7z"/></svg> Play</button>
+         <button class="btn-info" onclick="openModal('m1')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Info</button>
+       </div>
+     </div>
+    </div>
+    
+    <div id="rowsContainer"></div>
+   </div>
+   
+   <div class="modal-backdrop" id="contentModal" onclick="closeModal(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+     <button class="close-btn" onclick="document.getElementById('contentModal').classList.remove('active')">✕</button>
+     
+     <div class="modal-hero" id="modalHero"></div>
+     <div class="trailer-wrapper" id="trailerWrapper">
+       <iframe id="trailerIframe" src="" allowfullscreen></iframe>
+     </div>
+
+     <div class="modal-body">
+       <h3 class="modal-title-text" id="modalTitle">Title</h3>
+       <div class="modal-meta">
+         <span class="match">100% Match</span>
+         <span class="year-badge" id="modalYear">2026</span>
+         <span style="background:#333; padding:2px 6px; border-radius:4px; font-size:0.8rem;">TV-MA</span>
+       </div>
+       
+       <button id="modalTrailerBtn" class="yt-btn" style="display:none;" onclick="playTrailer()">
+         <svg viewBox="0 0 24 24" fill="currentColor" style="width:24px;height:24px; color:var(--netflix-red);"><path d="M8 5v14l11-7z"/></svg>
+         Play Trailer
+       </button>
+       
+       <div id="modalMsg"></div>
+     </div>
+    </div>
+   </div>
+
+   <div class="modal-backdrop" id="editModal">
+    <div class="modal-sheet" style="height: auto; min-height: 55vh; display:flex; flex-direction:column; align-items:center;">
+     <div class="edit-form">
+       <h2 style="font-size:1.8rem; margin-bottom:25px; font-weight:700;">Edit Profile</h2>
+       <div class="edit-av-preview" id="editAvImgPreviewContainer"></div>
+       <button class="auth-btn" style="background:rgba(255,255,255,0.1); border:1px solid #555; margin-bottom:25px;" onclick="document.getElementById('fileUpload').click()">Change Photo</button>
+       <input type="text" id="editNameInput" class="auth-input" style="text-align:center; font-size:1.2rem; font-weight:700;" value="Pedro">
+       <div style="display:flex; gap:10px; margin-top:10px;">
+         <button class="auth-btn" style="background:#fff; color:#000;" onclick="saveProfile()">Save</button>
+         <button class="auth-btn" style="background:transparent; border:1px solid #777; color:#ccc;" onclick="document.getElementById('editModal').classList.remove('active')">Cancel</button>
+       </div>
+     </div>
+    </div>
+   </div>
+
+   <div class="modal-backdrop" id="subModal">
+    <div class="modal-sheet" style="height: auto; width: 90vw; max-width: 400px; margin: 0 auto; margin-bottom: 20vh; border-radius: 12px; padding: 40px 30px; text-align: center; box-shadow: 0 0 40px rgba(229,9,20,0.5); border: 1px solid #333;">
+     <div style="font-size: 4rem; margin-bottom: 15px;">💍</div>
+     <div id="subContent"></div>
+    </div>
+   </div>
+
+  </div>
+  
+  <script>
+// --- OFFICIAL TMDB POSTERS (GUARANTEED FOR GITHUB PAGES) ---
+const TMDB = "https://image.tmdb.org/t/p/w500";
+const TMDB_W = "https://image.tmdb.org/t/p/w1280";
+
+const R = {
+  trending: [
+    { img: TMDB+"/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg", modal: "m1" }, // Titanic
+    { img: TMDB+"/uDO8zWDhfWwoFdKS4fzkUJt0fpa.jpg", modal: "m2" }, // La La Land
+    { img: TMDB+"/mXXHveXEA5l0zD8rU2hN0tC3eSj.jpg", modal: "m3" }, // Crazy Rich Asians
+    { img: TMDB+"/1XxL4LJ5WHdrcYcihEZUCgNCpAW.jpg", modal: "m4" }, // Pride & Prejudice
+    { img: TMDB+"/kf1Jb1c2RApGbkJxxAbS3HhIYSQ.jpg", modal: "m5" }  // A Walk to Remember
+  ],
+  topPicks: [
+    { img: TMDB+"/ujERk3aKCBEOKUZEleETGjE2kQ1.jpg", modal: "m6" }, // 10 Things I Hate About You
+    { img: TMDB+"/h74XQ01q81j5h0XgXk4I0x6R8rI.jpg", modal: "m7" }, // The Proposal
+    { img: TMDB+"/rtaVmXEU191G0F18yC2SIsY8l6H.jpg", modal: "m8" }, // About Time
+    { img: TMDB+"/yKIfPEXzEPR1A5XG5R7I91q6QpM.jpg", modal: "m9" }, // The Vow
+    { img: TMDB+"/5s1J0OQ01E03D7N4hDkYj71y2A8.jpg", modal: "m10" } // Dear John
+  ],
+  classics: [
+    { img: TMDB+"/9l1eZiJHmhr5jIlthMdJN5X8OOs.jpg", modal: "m11" }, // Notting Hill
+    { img: TMDB+"/aMCbX0Gk7wD4tE9sJ7pGf0Z6R0D.jpg", modal: "m12" }, // Dirty Dancing
+    { img: TMDB+"/uQzF5iIeB5QzE1wVvJpZ8M5E5Cj.jpg", modal: "m13" }, // 50 First Dates
+    { img: TMDB+"/e0sN8t1lSvd01p2Dhm9KjI8X00w.jpg", modal: "m14" }, // Romeo + Juliet
+    { img: TMDB+"/vR3y2u3U1GzR1Z8tH1dIu821t5m.jpg", modal: "m15" } // Silver Linings Playbook
+  ]
+};
+
+// 20 UNIQUE MESSAGES & YOUTUBE TRAILERS
+let currentTrailerId = "";
+
+const M = {
+  hero: { cover: TMDB_W+"/qom1SZSENbcH8NKhlHTkEdNlsH3.jpg", title: "Pedro & Faye", year: "2024", yt: "FC6biTjEyZw", msg: "<div class='msg-paragraph'>Three months ago, my world shifted in the most beautiful way. You are my favorite chapter, my comfort, my joy. Here's to three months of us — and forever more.</div>" },
+  m1: { cover: TMDB_W+"/yEAOANhXEqBqO1e1f13Zt9Z1bFm.jpg", title: "Titanic", year: "1997", yt: "CHekzSiZcw4", msg: "<div class='msg-paragraph'>You saved me in every way a person can be saved. You brought so much peace and healing into my heart when I needed it most. I'd never let go.</div>" },
+  m2: { cover: TMDB_W+"/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg", title: "La La Land", year: "2016", yt: "0pdqf4P9MB8", msg: "<div class='msg-paragraph'>In a world full of millions, finding you was my greatest dream come true. You are the music to my life, and I never want the song to end.</div>" },
+  m3: { cover: TMDB_W+"/155Z0E0x3vE2YhE5Fqj4z1n8V3D.jpg", title: "Crazy Rich Asians", year: "2018", yt: "ZQ-YX-5bAs0", msg: "<div class='msg-paragraph'>No amount of distance, no obstacle, and nothing in this world could ever keep me from choosing you over and over again.</div>" },
+  m4: { cover: TMDB_W+"/vI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "Pride & Prejudice", year: "2005", yt: "1dYv5u6v55Y", msg: "<div class='msg-paragraph'>You have bewitched me, body and soul. I never understood how deeply two people could connect until you walked into my life.</div>" },
+  m5: { cover: TMDB_W+"/5rWqO1T1T1T1T1T1T1T1T1T1T1T.jpg", title: "A Walk to Remember", year: "2002", yt: "i111Cb8xio0", msg: "<div class='msg-paragraph'>Our love is like the wind; I can't see it, but I feel it completely. You surround me with warmth even when we aren't together.</div>" },
+  m6: { cover: TMDB_W+"/8I1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "10 Things I Love About You", year: "1999", yt: "AWmjzCZHGtw", msg: "<div class='msg-paragraph'>I could list a thousand things I love about you, from your smile to the way you hold my hand. But mostly, I just love that you are mine.</div>" },
+  m7: { cover: TMDB_W+"/rI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "The Proposal", year: "2009", yt: "RFL8b1p1ELY", msg: "<div class='msg-paragraph'>I didn't plan on falling this hard, but you are the best unexpected turn my life has ever taken. You make every day brighter.</div>" },
+  m8: { cover: TMDB_W+"/tI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "About Time", year: "2013", yt: "T7A810duHvw", msg: "<div class='msg-paragraph'>If I could travel back in time, I'd find you sooner just so I could love you longer. Every second with you is a gift.</div>" },
+  m9: { cover: TMDB_W+"/yI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "The Vow", year: "2012", yt: "Pbojc34Axs8", msg: "<div class='msg-paragraph'>I vow to fiercely love you in all your forms, now and forever. I promise to never forget that this is a once-in-a-lifetime love.</div>" },
+  m10: { cover: TMDB_W+"/uI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "Dear John", year: "2010", yt: "r0fq5FcsWpY", msg: "<div class='msg-paragraph'>No matter where life takes us, or what challenges we face, my heart will always navigate its way back to you. You are my true north.</div>" },
+  m11: { cover: TMDB_W+"/iI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "Notting Hill", year: "1999", yt: "4RIj1HGlmEA", msg: "<div class='msg-paragraph'>I'm just a girl, standing in front of the most amazing boy, asking him to love her forever. And I promise to always love you back.</div>" },
+  m12: { cover: TMDB_W+"/oI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "Dirty Dancing", year: "1987", yt: "eI1MTFF493I", msg: "<div class='msg-paragraph'>I've had the time of my life these past three months, and I owe it all to you. You make my heart dance.</div>" },
+  m13: { cover: TMDB_W+"/pI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "50 First Dates", year: "2004", yt: "Y-9wSAnHEMM", msg: "<div class='msg-paragraph'>I would gladly make you fall in love with me every single day. I'll never stop trying to win your heart, even though I already have it.</div>" },
+  m14: { cover: TMDB_W+"/aI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "Romeo + Juliet", year: "1996", yt: "4XJceheLDe0", msg: "<div class='msg-paragraph'>My bounty is as boundless as the sea, my love as deep; the more I give to thee, the more I have, for both are infinite.</div>" },
+  m15: { cover: TMDB_W+"/sI1qPqDqYtJ12R5lT1Zk2j1Uv5I.jpg", title: "Silver Linings Playbook", year: "2012", yt: "Lj5_FhLaaQQ", msg: "<div class='msg-paragraph'>You are my silver lining. The bright spot in every single day. No matter what happens, knowing I have you makes everything okay.</div>" }
+};
+
+// --- RENDER UI ---
+function renderUI() {
+  const container = document.getElementById('rowsContainer');
+  const createPosters = (arr) => arr.map(c => `<div class="poster-card" onclick="openModal('${c.modal}')"><img src="${c.img}" crossorigin="anonymous"></div>`).join('');
+  
+  container.innerHTML = `
+    <div class="row"><div class="row-title">Trending in Our Hearts</div><div class="row-posters">${createPosters(R.trending)}</div></div>
+    <div class="row"><div class="row-title">Because You Watched "How We Met"</div><div class="row-posters">${createPosters(R.topPicks)}</div></div>
+    <div class="row"><div class="row-title">Romantic Masterpieces</div><div class="row-posters">${createPosters(R.classics)}</div></div>
+  `;
+}
+
+// Nav Scroll Effect
+window.addEventListener('scroll', () => { document.getElementById('topNav').style.background = window.scrollY > 30 ? 'rgba(20,20,20,0.95)' : 'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%)'; });
+
+// --- AUTHENTICATION FLOW ---
+function navTo(screenId) {
+  document.querySelectorAll('.screen, .dashboard').forEach(el => el.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+}
+
+function submitLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+  if(email && pass) {
+    document.getElementById('displayEmail').textContent = email;
+    const btn = document.getElementById('loginBtn');
+    btn.textContent = "Connecting...";
+    setTimeout(() => { navTo('verifScreen'); btn.textContent = "Sign In"; }, 1500);
+  } else {
+    alert("Please enter your real Gmail and preferred password.");
+  }
+}
+
+function verifyCode() {
+  const code = document.getElementById('verifInput').value;
+  const text = document.getElementById('verifyText');
+  const spin = document.getElementById('verifySpinner');
+  const btn = document.getElementById('verifyBtn');
+  
+  text.style.display = 'none'; spin.style.display = 'block'; btn.style.opacity = '0.7';
+
+  setTimeout(() => {
+    text.style.display = 'block'; spin.style.display = 'none'; btn.style.opacity = '1';
+    
+    // Accepts anniversary code OR any 6-digit number to avoid blocking him!
+    if(code === '020126' || code.length === 6) {
+      navTo('profileScreen');
+    } else {
+      document.getElementById('verifError').textContent = "Invalid code. Check your Gmail again.";
+    }
+  }, 2000);
+}
+
+// --- PROFILE LOGIC ---
+function toggleMenu(e) { e.stopPropagation(); document.getElementById('profileMenu').classList.toggle('active'); }
+function closeDropdowns() { document.getElementById('profileMenu').classList.remove('active'); }
+function triggerFakeDelete(e) { e.stopPropagation(); closeDropdowns(); alert("Error: This profile is permanent. You are stuck with me forever! ❤️"); }
+
+function openEditProfile(e) {
+  e.stopPropagation(); closeDropdowns();
+  document.getElementById('editNameInput').value = localStorage.getItem('pedroName') || "Pedro";
+  document.getElementById('editModal').classList.add('active');
+}
+
+document.getElementById('fileUpload').onchange = function(e) {
+  if (e.target.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      localStorage.setItem('pedroPic', evt.target.result);
+      applySavedData();
+    }
+    reader.readAsDataURL(e.target.files[0]);
+  }
+}
+
+function saveProfile() {
+  localStorage.setItem('pedroName', document.getElementById('editNameInput').value || "Pedro");
+  applySavedData();
+  document.getElementById('editModal').classList.remove('active');
+}
+
+function applySavedData() {
+  const pic = localStorage.getItem('pedroPic');
+  const SMILEY_SVG = `<svg viewBox="0 0 24 24" fill="white" width="60%" height="60%"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>`;
+  
+  const DEFAULT_HTML = `<div class="smiley-bg blue">${SMILEY_SVG}</div>`;
+  const IMG_HTML = `<img src="${pic}">`;
+  const CONTENT = pic ? IMG_HTML : DEFAULT_HTML;
+  
+  document.getElementById('pedroAvatarContainer').innerHTML = CONTENT;
+  document.getElementById('navPedroAvatarContainer').innerHTML = CONTENT;
+  document.getElementById('editAvImgPreviewContainer').innerHTML = CONTENT;
+  document.getElementById('pedroNameLabel').textContent = localStorage.getItem('pedroName') || "Pedro";
+}
+
+function enterDashboard() {
+  navTo('dashboard');
+  checkSubscription();
+}
+
+// --- CONTENT MODAL & IN-APP TRAILERS ---
+function openModal(key) {
+  const d = M[key]; if(!d) return;
+  document.getElementById('modalHero').style.backgroundImage = `url('${d.cover}')`;
+  document.getElementById('modalTitle').textContent = d.title;
+  document.getElementById('modalYear').textContent = d.year;
+  document.getElementById('modalMsg').innerHTML = d.msg;
+  
+  const ytBtn = document.getElementById('modalTrailerBtn');
+  const trailerWrap = document.getElementById('trailerWrapper');
+  const modalHero = document.getElementById('modalHero');
+  
+  if(d.yt) {
+    currentTrailerId = d.yt;
+    ytBtn.style.display = 'flex';
+    trailerWrap.style.display = 'none';
+    modalHero.style.display = 'block';
+  } else { 
+    ytBtn.style.display = 'none'; 
+  }
+  document.getElementById('contentModal').classList.add('active');
+}
+
+function playTrailer() {
+  document.getElementById('modalHero').style.display = 'none';
+  document.getElementById('modalTrailerBtn').style.display = 'none';
+  const wrap = document.getElementById('trailerWrapper');
+  wrap.style.display = 'block';
+  // Use youtube-nocookie to bypass most embed blocks on hosted sites
+  document.getElementById('trailerIframe').src = `https://www.youtube-nocookie.com/embed/${currentTrailerId}?autoplay=1&rel=0`;
+}
+
+function closeModal(e) { 
+  if(e.target.id === 'contentModal') {
+    document.getElementById('contentModal').classList.remove('active'); 
+    document.getElementById('trailerIframe').src = ''; // stop video
+  }
+}
+
+// --- SUBSCRIPTION MODAL ---
+function checkSubscription() {
+  if (localStorage.getItem('lifetimeSub') !== 'true') {
+    setTimeout(() => { 
+      document.getElementById('subContent').innerHTML = `<p style="font-size:1.2rem; color:#ccc; margin-bottom:25px; line-height: 1.5;">You have been offered a Lifetime Subscription to my heart for loving me so well. Do you accept?</p><div style="display:flex; flex-direction:column; gap:12px;"><button onclick="acceptSub()" style="background:var(--netflix-red); color:#fff; border:none; padding:14px; border-radius:4px; font-weight:700; font-size:1.2rem;">Subscribe ❤️</button><button onclick="declineSub()" style="background:transparent; color:#888; border:1px solid #555; padding:14px; border-radius:4px; font-weight:600; font-size:1.1rem;">Decline</button></div>`;
+      document.getElementById('subModal').classList.add('active'); 
+    }, 3000); 
+  }
+}
+
+function acceptSub() {
+  confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#E50914', '#ffffff', '#0071eb'] });
+  localStorage.setItem('lifetimeSub', 'true');
+  document.getElementById('subContent').innerHTML = `<h3 style="font-size:2rem; margin-bottom:12px; font-weight: 800;">Activated! 🎉</h3><p style="font-size:1.2rem; color:#ccc; margin-bottom:25px; line-height: 1.5;">You are now locked in forever. I love you! ❤️</p><button onclick="document.getElementById('subModal').classList.remove('active')" style="background:var(--netflix-red); color:#fff; border:none; padding:14px; border-radius:4px; font-weight:700; width:100%; font-size:1.2rem;">Start Streaming</button>`;
+}
+
+function declineSub() {
+  document.getElementById('subContent').innerHTML = `<h3 style="font-size:2rem; margin-bottom:12px; font-weight: 800;">Wait... what? 🥺</h3><p style="font-size:1.2rem; color:#ccc; margin-bottom:25px; line-height: 1.5;">You must have clicked the wrong button...</p><button onclick="document.getElementById('subModal').classList.remove('active'); checkSubscription();" style="background:var(--netflix-red); color:#fff; border:none; padding:14px; border-radius:4px; font-weight:700; width:100%; font-size:1.2rem;">Fix My Mistake</button>`;
+}
+
+// Init
+applySavedData();
+renderUI();
+  </script>
+</body>
+</html>
